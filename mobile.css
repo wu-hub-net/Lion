@@ -1,0 +1,18 @@
+.mobile-nav{display:none}
+.shortlist-overview-empty{padding:42px 22px;text-align:center;border-top:1px solid #f0ede9}.shortlist-overview-empty strong{display:block;font-family:'Space Grotesk';font-size:15px}.shortlist-overview-empty p{font-size:10px;color:#918a84;margin-top:6px}.shortlist-overview-empty button{margin-top:14px;background:var(--ink);color:#fff;border-radius:5px;padding:9px 13px;font-size:10px;font-weight:700}
+.workspace-grid{align-items:start}.ranking-panel,.rubric-panel{align-self:start}
+@media(max-width:700px){
+  html,body{overflow-x:hidden}
+  .shell,.main{width:100%;min-width:0;max-width:100vw}
+  .mobile-nav{display:flex;position:sticky;top:0;z-index:10;background:rgba(251,250,247,.96);border-bottom:1px solid var(--line);margin:-22px -17px 22px;padding:9px 17px;gap:4px}
+  .mobile-nav{width:100vw}
+  .mobile-nav button{flex:0 0 calc((100vw - 42px)/3);min-width:0;padding:9px 2px;border-radius:5px;font-size:10px;color:#847d77}
+  .mobile-nav button.active{background:var(--ink);color:#fff}
+  .talent-header{display:block}
+  .talent-header .new-btn{display:none}
+  .pool-toolbar,.pool-layout,.talent-list{min-width:0;width:100%;max-width:calc(100vw - 34px)}
+  .talent-card{min-width:0;width:100%;max-width:calc(100vw - 34px)}
+  .pool-toolbar select{min-width:0;width:100%}
+  .talent-card{overflow:hidden}
+  .talent-actions{grid-template-columns:minmax(0,1fr) auto}
+}

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE LIONS — Your CV hides what you build</title>
+<meta name="description" content="THE LIONS is a campus skill-verification layer: public repositories, graded coursework and timed tests turned into a verified profile a hiring team can argue with.">
+<style>
+:root{
+  --orange:#E8590C; --orange-d:#BD2800; --ink:#1F1E1D; --gray:#6B6B6B; --lgray:#A8A8A8;
+  --cream:#FDF7F2; --pale:#FDEFE4; --line:#E7E3E0; --teal:#12546A; --sky:#C4E1EC; --amber:#F5A66B;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#fff;color:var(--ink);
+  font-family:Arial,Helvetica,"Helvetica Neue","Segoe UI",sans-serif;font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Arial Black",Arial,Helvetica,sans-serif;font-weight:900;letter-spacing:-.02em;line-height:1.05;margin:0}
+p{margin:0 0 1em}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--orange)}
+.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+
+/* ---------- nav ---------- */
+header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid transparent;transition:border-color .2s,box-shadow .2s}
+header.nav.stuck{border-color:var(--line);box-shadow:0 6px 24px rgba(31,30,29,.06)}
+.nav-in{display:flex;align-items:center;gap:28px;height:66px}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Arial Black",Arial,sans-serif;font-weight:900;font-size:17px;letter-spacing:.06em;text-decoration:none}
+.brand i{width:26px;height:26px;background:var(--orange);display:block;clip-path:polygon(50% 0,100% 30%,86% 100%,14% 100%,0 30%)}
+nav.links{margin-left:auto;display:flex;gap:26px;font-size:14px;font-weight:700}
+nav.links a{text-decoration:none;color:var(--gray);padding:6px 0;border-bottom:2px solid transparent}
+nav.links a:hover{color:var(--ink);border-color:var(--orange)}
+.btn{display:inline-block;padding:12px 20px;border-radius:2px;font-size:14px;font-weight:700;text-decoration:none;border:2px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(31,30,29,.18)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.orange{background:var(--orange);border-color:var(--orange)}
+.burger{display:none;margin-left:auto;background:none;border:0;font-size:26px;cursor:pointer;line-height:1}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;background:var(--cream);border-bottom:1px solid var(--line)}
+.hero:after{content:"";position:absolute;right:-140px;top:-120px;width:520px;height:520px;background:var(--pale);transform:rotate(18deg);z-index:0}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;padding:74px 0 84px}
+.hero h1{font-size:clamp(40px,6.2vw,72px)}
+.hero h1 em{font-style:normal;color:var(--orange);display:block}
+.hero .lead{font-size:19px;color:var(--gray);max-width:33em;margin-top:22px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px;align-items:center}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--teal);background:#fff;border:1px solid var(--sky);padding:7px 12px;border-radius:100px}
+.status b{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:46px;border-top:3px solid var(--ink)}
+.kpi{padding:16px 18px 4px;border-right:1px solid var(--line)}
+.kpi:last-child{border-right:0}
+.kpi b{display:block;font-family:"Arial Black",Arial,sans-serif;font-size:28px;color:var(--orange);letter-spacing:-.02em}
+.kpi span{font-size:13px;color:var(--gray)}
+
+/* ---------- image slots ---------- */
+.slot{position:relative;margin:0;aspect-ratio:16/11;background:var(--cream);border:1px solid var(--line);overflow:hidden}
+.slot img{width:100%;height:100%;object-fit:cover;display:block}
+.slot .ph{display:none;position:absolute;inset:0;padding:18px;flex-direction:column;gap:10px;
+  background:repeating-linear-gradient(135deg,#fff,#fff 12px,var(--cream) 12px,var(--cream) 24px);
+  border:2px dashed var(--amber)}
+.slot.missing img{display:none}
+.slot.missing .ph{display:flex}
+.ph-file{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange)}
+.ph-txt{font-size:12.5px;line-height:1.5;color:var(--gray);flex:1;overflow:hidden}
+.ph-btn{align-self:flex-start;font-size:11px;font-weight:700;padding:6px 10px;border:1px solid var(--line);background:#fff;cursor:pointer;border-radius:2px}
+
+/* ---------- sections ---------- */
+section{padding:88px 0}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:42px;flex-wrap:wrap}
+.sec-head h2{font-size:clamp(28px,3.6vw,42px)}
+.sec-head p{color:var(--gray);max-width:34em;margin:0}
+.rule{height:3px;background:var(--ink);width:64px;margin:14px 0 0}
+
+/* mission / vision */
+.mv{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+.mv:before{content:"";position:absolute;left:-80px;bottom:-160px;width:420px;height:420px;background:#2a2827;transform:rotate(20deg)}
+.mv-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:0}
+.mv-cell{padding:56px 48px}
+.mv-cell+.mv-cell{border-left:1px solid #3a3835}
+.mv h3{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:18px;font-family:Arial,sans-serif;font-weight:700}
+.mv .big{font-family:"Arial Black",Arial,sans-serif;font-size:clamp(21px,2.3vw,29px);line-height:1.28;letter-spacing:-.01em}
+.mv .big u{text-decoration:none;color:var(--orange)}
+.mv .small{margin-top:18px;color:#b9b5b1;font-size:15px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.step{background:#fff;border:1px solid var(--line);padding:0 0 26px;position:relative;transition:transform .18s,box-shadow .18s}
+.step:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(31,30,29,.10)}
+.step .slot{aspect-ratio:4/3;border:0;border-bottom:1px solid var(--line)}
+.step .n{position:absolute;left:18px;top:12px;z-index:2;font-family:"Arial Black",Arial,sans-serif;font-size:52px;line-height:1;color:#fff;-webkit-text-stroke:2px var(--orange);letter-spacing:-.04em}
+.step h3{padding:22px 24px 8px;font-size:21px}
+.step p{padding:0 24px;color:var(--gray);font-size:15.5px;margin:0}
+.step .tag{display:inline-block;margin:14px 0 0 24px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:var(--sky);padding:4px 9px}
+
+/* compare table */
+table.cmp{width:100%;border-collapse:collapse;font-size:15.5px}
+table.cmp th,table.cmp td{padding:15px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+table.cmp thead th{background:var(--ink);color:#fff;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+table.cmp tbody tr:nth-child(odd){background:var(--cream)}
+table.cmp td.h{font-weight:700;width:26%}
+table.cmp td.us{color:var(--ink)}
+table.cmp td.us:before{content:"✓";color:var(--orange);font-weight:900;margin-right:9px}
+table.cmp td.them{color:var(--gray)}
+table.cmp td.them:before{content:"✕";color:var(--lgray);font-weight:900;margin-right:9px}
+
+/* pricing */
+.price{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tier{border:1px solid var(--line);padding:26px 22px;background:#fff}
+.tier.hot{border-color:var(--orange);box-shadow:0 14px 34px rgba(232,89,12,.14);position:relative}
+.tier.hot:after{content:"MOST COMMON";position:absolute;right:-1px;top:-1px;background:var(--orange);color:#fff;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 8px}
+.tier h4{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);font-family:Arial,sans-serif;font-weight:700}
+.tier .amt{font-family:"Arial Black",Arial,sans-serif;font-size:30px;letter-spacing:-.03em;margin:12px 0 2px}
+.tier .amt small{font-family:Arial,sans-serif;font-size:13px;font-weight:400;color:var(--gray);letter-spacing:0}
+.tier p{font-size:14px;color:var(--gray);margin:8px 0 0}
+
+/* values / red lines */
+.lines{display:grid;grid-template-columns:1fr 1fr;gap:0 44px}
+.lines li{list-style:none;padding:16px 0 16px 34px;border-bottom:1px solid var(--line);position:relative;font-size:16px}
+.lines li:before{content:"";position:absolute;left:0;top:23px;width:0;height:0;border-left:12px solid var(--orange);border-top:7px solid transparent;border-bottom:7px solid transparent}
+.lines li b{display:block;font-size:15px}
+.lines li span{color:var(--gray);font-size:14.5px}
+ul.lines{margin:0;padding:0}
+
+/* posts */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.post{border:1px solid var(--line);padding:22px;background:#fff;font-size:14.5px;color:var(--gray);white-space:pre-line}
+.post .who{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--ink);font-weight:700;font-size:13px}
+.post .who i{width:28px;height:28px;border-radius:50%;background:var(--pale);display:block;flex:0 0 auto}
+.post .meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--lgray);white-space:normal}
+
+/* pilot cta */
+.pilot{background:var(--teal);color:#fff;position:relative;overflow:hidden}
+.pilot .slot{position:absolute;inset:0;border:0;aspect-ratio:auto;opacity:.22;mix-blend-mode:luminosity}
+.pilot .wrap{position:relative;z-index:2}
+.pilot h2{font-size:clamp(28px,3.6vw,44px);max-width:22ch}
+.pilot p{max-width:52ch;color:var(--sky);margin-top:16px}
+.pilot .btn{background:#fff;color:var(--teal);border-color:#fff;margin-top:26px}
+.pilot ul{margin:26px 0 0;padding:0;display:flex;gap:26px;flex-wrap:wrap;list-style:none;font-size:14.5px;color:#e8f3f7}
+.pilot ul li:before{content:"—  ";color:var(--amber)}
+
+footer{background:var(--cream);border-top:1px solid var(--line);padding:44px 0;font-size:13.5px;color:var(--gray)}
+.f-in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+.f-in .brand{font-size:15px}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.rv.on{opacity:1;transform:none}
+
+@media(max-width:960px){
+  .hero-grid,.mv-grid,.lines{grid-template-columns:1fr}
+  .mv-cell+.mv-cell{border-left:0;border-top:1px solid #3a3835}
+  .steps,.posts{grid-template-columns:1fr}
+  .price{grid-template-columns:1fr 1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .kpi{border-bottom:1px solid var(--line)}
+  nav.links{display:none;position:absolute;top:66px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);flex-direction:column;padding:16px 24px;gap:14px}
+  nav.links.open{display:flex}
+  .burger{display:block}
+  .nav-in .btn{display:none}
+  section{padding:62px 0}
+}
+@media(max-width:560px){.price{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><i></i>THE LIONS</a>
+    <button class="burger" id="burger" aria-label="menu">≡</button>
+    <nav class="links" id="links">
+      <a href="#solution">Solution</a>
+      <a href="#mission">Mission</a>
+      <a href="#how">How it works</a>
+      <a href="#model">Model</a>
+      <a href="#posts">Posts</a>
+    </nav>
+    <a class="btn orange" href="#pilot">Run a pilot</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<div class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Campus skill verification</div>
+      <h1>Your CV hides<em>what you build.</em></h1>
+      <p class="lead">THE LIONS turns public repositories, graded coursework and timed tests into a verified skill profile — scored against a rubric you can read, ranked with a reason you can argue with.</p>
+      <div class="cta-row">
+        <a class="btn" href="#pilot">Two pilot departments wanted</a>
+        <a class="btn ghost" href="#how">See how it works</a>
+        <span class="status"><b></b>Building · pilot cohort this semester</span>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi"><b>7.4s</b><span>per CV scan</span></div>
+        <div class="kpi"><b>17.2</b><span>CVs per opening</span></div>
+        <div class="kpi"><b>1 in 4</b><span>profiles fake by 2028</span></div>
+        <div class="kpi"><b>3,500</b><span>CS programmes to serve</span></div>
+      </div>
+    </div>
+    <figure class="slot" data-file="img/hero.png" data-prompt="EDITORIAL 3D ILLUSTRATION, 16:11: a giant sheet of paper torn in half — the left half is a grey generic CV template with blurred text lines, the right half explodes into glowing orange code blocks, git commit nodes and a running terminal. One torn edge in the centre, dramatic diagonal composition. Palette strictly orange #E8590C, ink #1F1E1D, cream #FDF7F2, one teal accent. Flat studio lighting, subtle paper texture, high contrast, premium tech-brand editorial. Absolutely NO text, NO letters, NO numbers, NO watermark anywhere in the image."></figure>
+  </div>
+</div>
+
+<!-- ================= MISSION / VISION ================= -->
+<section class="mv" id="mission" style="padding:0">
+  <div class="wrap" style="padding:0">
+    <div class="mv-grid">
+      <div class="mv-cell rv">
+        <h3>Mission</h3>
+        <div class="big">Make what a student can actually do <u>visible, verifiable and arguable</u>.</div>
+        <p class="small">So the first question in campus hiring is what you built — not how well you described it.</p>
+      </div>
+      <div class="mv-cell rv">
+        <h3>Vision</h3>
+        <div class="big">A campus labour market where <u>verified evidence</u> outweighs where you studied, whom you know, or how your CV is formatted.</div>
+        <p class="small">One profile, portable across departments, read on the same terms by a lab lead in a smaller city and an engineering manager in a metropolis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOLUTION ================= -->
+<section id="solution">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="eyebrow">01 · The solution</div>
+        <h2>A verification layer, not another job board.</h2>
+        <div class="rule"></div>
+      </div>
+      <p>A first-round screen is a formatting contest today. The signal already exists in a student's work — it has no structure a buyer can read. We give it one.</p>
+    </div>
+    <div class="steps">
+      <article class="step rv">
+        <div class="n">1</div>
+        <figure class="slot" data-file="img/connect.png" data-prompt="MINIMAL 3D ICON SCENE, 4:3: two floating rounded panels linked by a bright orange cable with a glowing handshake node in the middle; one panel shows an abstract code-editor grid, the other shows a shield with a checkmark. Soft cream background #FDF7F2, orange #E8590C highlights, dark ink #1F1E1D outlines, gentle long shadows, matte plastic material. NO text, NO letters, NO numbers, NO logos."></figure>
+        <h3>Connect</h3>
+        <p>A student links public repositories and graded coursework, and approves every single read. Nothing is scraped silently.</p>
+        <span class="tag">Student-owned consent</span>
+      </article>
+      <article class="step rv">
+        <div class="n">2</div>
+        <figure class="slot" data-file="img/scored.png" data-prompt="MINIMAL 3D ICON SCENE, 4:3: an abstract scoring dashboard made of floating bars, a circular gauge and a balance scale holding a stack of code blocks on one side; orange #E8590C and teal #12546A on cream #FDF7F2, dark ink outlines, matte plastic, soft studio light. NO text, NO letters, NO numbers, NO percentages."></figure>
+        <h3>Get scored</h3>
+        <p>Evidence is weighted against the rubric a team actually hires on. Not spell-checked. Not keyword-matched.</p>
+        <span class="tag">Visible rubric</span>
+      </article>
+      <article class="step rv">
+        <div class="n">3</div>
+        <figure class="slot" data-file="img/proof.png" data-prompt="MINIMAL 3D ICON SCENE, 4:3: a ranked list of abstract cards, each with a small evidence chip attached by a thin line to a code block; one card is lifted forward and glowing orange; cream background #FDF7F2, orange #E8590C, ink #1F1E1D, matte finish, soft shadows. NO text, NO letters, NO numbers."></figure>
+        <h3>Share proof</h3>
+        <p>One link. Every rank shows its reason and the evidence behind it, so a decision can be challenged and reproduced.</p>
+        <span class="tag">Explainable by default</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPARE ================= -->
+<section style="background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="eyebrow">02 · Why it is different</div>
+        <h2>Keyword matching versus evidence.</h2>
+        <div class="rule"></div>
+      </div>
+    </div>
+    <div class="rv" style="overflow-x:auto">
+    <table class="cmp">
+      <thead><tr><th style="width:26%">Dimension</th><th>THE LIONS</th><th>CV keyword screening</th></tr></thead>
+      <tbody>
+        <tr><td class="h">Unit of proof</td><td class="us">Work that can be opened, run and verified</td><td class="them">Adjectives on one page</td></tr>
+        <tr><td class="h">Who sets the standard</td><td class="us">The hiring department writes the weights</td><td class="them">An opaque ATS score nobody shows you</td></tr>
+        <tr><td class="h">Why a rank happened</td><td class="us">Every position ships with its reason and source</td><td class="them">No explanation, no appeal</td></tr>
+        <tr><td class="h">Formatting penalty</td><td class="us">None — the evidence is the format</td><td class="them">A strong project can sit on page four in size-six font</td></tr>
+        <tr><td class="h">Data collected</td><td class="us">Public repositories only, after authorisation</td><td class="them">Name, contact, history, whatever the CV contains</td></tr>
+        <tr><td class="h">Who decides</td><td class="us">A human. We rank; nothing is auto-rejected</td><td class="them">A threshold rejects candidates before anyone reads</td></tr>
+        <tr><td class="h">Who pays</td><td class="us">Departments and employers. Students never pay</td><td class="them">Paid résumé rewrites tax the people who need help most</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VALUES / RED LINES ================= -->
+<section id="values">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="eyebrow">03 · Non-negotiables</div>
+        <h2>Built to be refused.</h2>
+        <div class="rule"></div>
+      </div>
+      <p>A verification system can be abused. These four lines are the reason it should be trusted — and we will not cross them for revenue.</p>
+    </div>
+    <ul class="lines">
+      <li class="rv"><b>Evidence over adjectives.</b><span>If it cannot be opened, run or verified, it is not a qualification — it is a claim.</span></li>
+      <li class="rv"><b>Explainable by default.</b><span>A result nobody can argue with is a result nobody should trust.</span></li>
+      <li class="rv"><b>The student owns the read.</b><span>Public repositories only, after authorisation. No names, no transcripts, no browsing history, no contact graph.</span></li>
+      <li class="rv"><b>We rank; a human decides.</b><span>We will not sell automation that removes a person from a decision about a person.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= MODEL ================= -->
+<section id="model" style="background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="eyebrow">04 · Business model</div>
+        <h2>Students never pay. That is the strategy.</h2>
+        <div class="rule"></div>
+      </div>
+      <p>Free supply of verified skill is what makes the department view worth licensing — so the sequence cannot be reversed.</p>
+    </div>
+    <div class="price">
+      <div class="tier rv"><h4>Student</h4><div class="amt">Free <small>forever</small></div><p>Score, proof link and rubric visibility. No paywall on proving yourself.</p></div>
+      <div class="tier rv"><h4>Department / lab</h4><div class="amt">¥18–25k <small>/ yr</small></div><p>One lab or career office. Own rubric, own rankings, own audit trail.</p></div>
+      <div class="tier hot rv"><h4>Tech SME</h4><div class="amt">¥3,600 <small>/ yr · US$499</small></div><p>The common case: hire from verified campus talent without an agency fee.</p></div>
+      <div class="tier rv"><h4>Institution</h4><div class="amt">¥100–150k <small>/ yr</small></div><p>Whole-college licence, plus optional ¥1,000–2,000 per verified hire.</p></div>
+    </div>
+    <p class="rv" style="margin-top:26px;color:var(--gray);font-size:14.5px">Anchor: one campus role, 200 applicants. Screening it with per-candidate written tests costs ¥6,000 for a single round and leaves no record behind. A full year with us is 60% of that.</p>
+  </div>
+</section>
+
+<!-- ================= POSTS ================= -->
+<section id="posts">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="eyebrow">05 · How we say it</div>
+        <h2>The promotion, in the words we would post.</h2>
+        <div class="rule"></div>
+      </div>
+      <p>Online reaches the students who already have the code. Offline reaches the people who write the standard.</p>
+    </div>
+    <div class="posts">
+      <article class="post rv"><div class="who"><i></i>@thelions · X / Weibo</div>A student who shipped a real project lost to one who described a badminton club better. Same pile, same six seconds.
+
+We're building THE LIONS: campus candidates ranked on verified code, not keywords — with the reason behind every position.
+
+Students never pay. #CampusHiring<div class="meta">275 characters · fits the 280 limit</div></article>
+      <article class="post rv"><div class="who"><i></i>THE LIONS · Instagram / 小红书</div>Your CV is not your work.
+
+You have the commits. You have the coursework that took three nights. You have the project that actually ran. On paper, all of it is one line, and one line is what a recruiter sees for six seconds.
+
+Free for students. Forever. We are building it now — tell us what you would want it to catch.<div class="meta">Hook line used across every channel</div></article>
+      <article class="post rv"><div class="who"><i></i>Career office · campus group blast</div>For career offices and lab leads: we rank verified student candidates against the rubric you write, and show the evidence behind every position. Two pilot departments wanted this semester — one free screening round. Reply here.<div class="meta">Offline channel · 227 characters</div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PILOT CTA ================= -->
+<section class="pilot" id="pilot">
+  <figure class="slot" data-file="img/campus.png" data-prompt="WIDE PHOTOGRAPHIC-MOOD ILLUSTRATION, 16:9: a university engineering building atrium at dusk, students walking with laptops, long dramatic shadows, one orange light source glowing at the far end of the corridor; desaturated teal shadows #12546A with orange #E8590C highlights, cinematic depth of field, subtle film grain. No readable signage, NO text, NO letters, NO logos, NO faces in close-up."></figure>
+  <div class="wrap">
+    <div class="eyebrow" style="color:var(--amber)">06 · Pilot</div>
+    <h2>Two departments. One free screening round.</h2>
+    <p>We are not asking for a budget this semester. We are asking for one real rubric from one real lab, and the honesty to publish where our ranking was wrong.</p>
+    <ul>
+      <li>You set the weights</li><li>We bring verified candidates</li><li>Every rank shows its evidence</li><li>We publish what the ranking got wrong</li>
+    </ul>
+    <a class="btn" href="mailto:the-lions@campus.edu?subject=Pilot%20request">Request the pilot deck</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap f-in">
+    <div class="brand"><i></i>THE LIONS <span style="font-family:Arial;font-weight:400;color:var(--gray);letter-spacing:0;font-size:13px">&nbsp;· We are the power</span></div>
+    <div>Verified skills. Right matches. · Pre-launch, pilot cohort this semester · Figures cited: TheLadders (7.4s), Zhaopin (17.2 CVs/opening), WEF (1 in 4 by 2028)</div>
+  </div>
+</footer>
+
+<script>
+// ---- build the image-slot placeholders (prompt is visible until the file exists) ----
+document.querySelectorAll('.slot[data-prompt]').forEach(function(fig){
+  var cap = document.createElement('figcaption'); cap.className = 'ph';
+  var f = document.createElement('div'); f.className='ph-file'; f.textContent = 'IMAGE SLOT · ' + fig.dataset.file;
+  var t = document.createElement('div'); t.className='ph-txt'; t.textContent = fig.dataset.prompt;
+  var b = document.createElement('button'); b.className='ph-btn'; b.textContent='Copy prompt';
+  b.addEventListener('click', function(){
+    navigator.clipboard.writeText(fig.dataset.prompt).then(function(){ b.textContent='Copied ✓'; setTimeout(function(){b.textContent='Copy prompt';},1400); });
+  });
+  var im = document.createElement('img');
+  im.alt = ''; im.src = fig.dataset.file;
+  im.addEventListener('error', function(){ fig.classList.add('missing'); });
+  im.addEventListener('load', function(){ fig.classList.remove('missing'); });
+  cap.appendChild(f); cap.appendChild(t); cap.appendChild(b);
+  fig.appendChild(im); fig.appendChild(cap);
+});
+
+// ---- nav shadow + mobile menu ----
+var nav = document.getElementById('nav');
+addEventListener('scroll', function(){ nav.classList.toggle('stuck', scrollY > 8); }, {passive:true});
+document.getElementById('burger').addEventListener('click', function(){ document.getElementById('links').classList.toggle('open'); });
+document.querySelectorAll('#links a').forEach(function(a){ a.addEventListener('click', function(){ document.getElementById('links').classList.remove('open'); }); });
+
+// ---- reveal on scroll ----
+var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } }); }, {threshold:.12});
+document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+</script>
+</body>
+</html>

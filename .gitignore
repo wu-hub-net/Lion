@@ -1,0 +1,12 @@
+deepseek-key.txt
+.env
+.env.*
+node_modules/
+__pycache__/
+*.py[cod]
+rendered/
+talent-check.png
+talent-mobile-check.png
+*.log
+.DS_Store
+Thumbs.db
