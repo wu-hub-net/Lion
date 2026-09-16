@@ -174,7 +174,7 @@
     const profile = suppliedProfile || {
       loginEmail: normalizedEmail,
       name: name.trim(),
-      org: org.trim() || (role === 'student' ? 'Student workspace' : role === 'admin' ? 'LIONS administration' : 'Teacher workspace'),
+      org: org.trim() || (role === 'student' ? 'Student workspace' : role === 'admin' ? 'LIONS administration' : 'Reviewer workspace'),
       phone: '', contactEmail: normalizedEmail, channel: '', github: '', avatar: '',
       school: role === 'student' ? org.trim() : '', graduationYear: '',
       availability: 'Open to opportunities',
@@ -312,8 +312,23 @@
     if (currentUser?.role === 'admin' && !['admin', 'talent', 'profile'].includes(type)) type = 'admin';
     if (currentUser?.role === 'teacher' && type === 'admin') type = 'overview';
     const profileView = document.getElementById('profileView');
+    const offersView = document.getElementById('offersView');
     document.getElementById('adminView').classList.remove('active');
     profileView.classList.remove('active');
+    offersView.classList.remove('active');
+    if (type === 'offers' && currentUser?.role === 'student') {
+      employerView.style.display = 'none';
+      studentView.classList.remove('active');
+      talentView.classList.remove('active');
+      assessmentView.classList.remove('active');
+      offersView.classList.add('active');
+      navItems.forEach((item) => item.classList.remove('active'));
+      document.getElementById('offersNav').classList.add('active');
+      document.querySelectorAll('.mobile-nav button').forEach((button) => button.classList.toggle('active', button.id === 'mobileOffers'));
+      renderOffersPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (type === 'profile') {
       employerView.style.display = 'none';
       studentView.classList.remove('active');
@@ -340,7 +355,7 @@
       return;
     }
     originalShowWorkspace(type);
-    if (type === 'student') renderStudentRequests();
+    if (type === 'student') { renderStudentRequests(); renderRecommendedOffers(); }
   };
 
   function populateProfile() {
@@ -361,10 +376,10 @@
     document.getElementById('profileVisibilityLegend').textContent = isStudent
       ? 'Shown on your talent profile'
       : currentUser.role === 'teacher' ? 'Shown to students who receive your requests' : 'Public profile visibility';
-    document.getElementById('profileEyebrow').innerHTML = `${isStudent ? 'STUDENT' : currentUser.role === 'teacher' ? 'TEACHER' : 'ADMINISTRATOR'} ACCOUNT <span>/</span> PERSONAL PROFILE`;
+    document.getElementById('profileEyebrow').innerHTML = `${isStudent ? 'STUDENT' : currentUser.role === 'teacher' ? 'REVIEWER' : 'ADMINISTRATOR'} ACCOUNT <span>/</span> PERSONAL PROFILE`;
     document.getElementById('profileTitle').textContent = `${currentUser.name || 'Your'} profile`;
     document.getElementById('profileLead').textContent = isStudent
-      ? 'Manage your identity and decide which contact details verified teachers can see.'
+      ? 'Manage your identity and decide which contact details verified reviewers can see.'
       : 'Keep your professional identity up to date and choose what other users can see.';
     document.getElementById('profilePrivacyCopy').textContent = isStudent
       ? 'Contact details stay private unless you choose to share them.'
@@ -384,6 +399,124 @@
       renderStudentRequests();
     }
   }
+
+  const OFFER_KEY = 'lions-offers';
+  function getOffers() {
+    try { return JSON.parse(localStorage.getItem(OFFER_KEY) || '[]'); } catch (error) { return []; }
+  }
+
+  function saveOffers(offers) {
+    localStorage.setItem(OFFER_KEY, JSON.stringify(offers));
+  }
+
+  function offerForm() {
+    const company = currentUser?.org || currentUser?.school || 'Northstar Labs';
+    openFlowModal('Send an offer', `<form class="offer-form" id="offerForm">
+      <div class="offer-grid"><label>Role title<input id="offerTitle" required placeholder="e.g. Junior Data Analyst"></label><label>Offer type<select id="offerType"><option>Full-time</option><option>Part-time</option><option>Internship</option><option>Project contract</option></select></label></div>
+      <div class="offer-grid"><label>Location<input id="offerLocation" required placeholder="Hong Kong · Hybrid"></label><label>Compensation<input id="offerCompensation" required placeholder="e.g. HK$18,000 / month"></label></div>
+      <div class="offer-grid"><label>Application deadline<input id="offerDeadline" type="date"></label><label>Skills sought<input id="offerSkills" placeholder="Python, SQL, data analysis"></label></div>
+      <label>Offer details<textarea id="offerDetails" required placeholder="Describe the role, responsibilities and what the student will work on."></textarea></label>
+      <button class="save-btn" type="submit">Publish offer</button>
+    </form>`);
+    document.getElementById('offerForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const offer = {
+        id: `offer-${Date.now()}`,
+        company,
+        title: document.getElementById('offerTitle').value.trim(),
+        type: document.getElementById('offerType').value,
+        location: document.getElementById('offerLocation').value.trim(),
+        compensation: document.getElementById('offerCompensation').value.trim(),
+        deadline: document.getElementById('offerDeadline').value,
+        skills: document.getElementById('offerSkills').value.trim(),
+        details: document.getElementById('offerDetails').value.trim(),
+        createdBy: currentUser?.id || currentUser?.loginEmail || currentUser?.email || '',
+        createdAt: new Date().toISOString(),
+        active: true,
+      };
+      saveOffers([offer, ...getOffers()]);
+      document.getElementById('modal').classList.remove('open');
+      toast('Offer published for students');
+    });
+  }
+
+  function openOffer(offer) {
+    openFlowModal(offer.title, `<span class="offer-badge">${esc(offer.company)} · ${esc(offer.type)}</span><div class="contact-grid"><div class="contact-item"><small>Location</small><strong>${esc(offer.location)}</strong></div><div class="contact-item"><small>Compensation</small><strong>${esc(offer.compensation)}</strong></div></div><div class="candidate-analysis"><div class="analysis-title"><span>OFFER DETAILS</span><small>${offer.deadline ? `Apply by ${esc(offer.deadline)}` : 'Open until filled'}</small></div><p>${esc(offer.details)}</p></div>${offer.skills ? `<div class="offer-meta"><span>${esc(offer.skills)}</span></div>` : ''}<button class="save-btn" onclick="document.getElementById('modal').classList.remove('open')">Close</button>`);
+  }
+
+  function renderRecommendedOffers() {
+    const list = document.getElementById('studentOfferList');
+    if (!list || currentUser?.role !== 'student') return;
+    const now = new Date().toISOString().slice(0, 10);
+    const offers = getOffers().filter((offer) => offer.active !== false && (!offer.deadline || offer.deadline >= now)).slice(0, 4);
+    list.innerHTML = offers.length ? offers.map((offer) => `<article class="offer-card"><span class="offer-badge">${esc(offer.company)}</span><strong>${esc(offer.title)}</strong><small>${esc(offer.type)} · ${esc(offer.location)}</small><p>${esc(offer.details.slice(0, 120))}${offer.details.length > 120 ? '...' : ''}</p><div class="offer-meta"><span>${esc(offer.compensation)}</span>${offer.skills ? `<span>${esc(offer.skills)}</span>` : ''}</div><button type="button" data-offer-id="${esc(offer.id)}">View offer</button></article>`).join('') : '<div class="offer-empty">No recommended offers yet.</div>';
+    list.querySelectorAll('[data-offer-id]').forEach((button) => button.addEventListener('click', () => {
+      const offer = getOffers().find((item) => item.id === button.dataset.offerId);
+      if (offer) openOffer(offer);
+    }));
+  }
+
+  function renderOfferDetail(offer) {
+    const panel = document.getElementById('offerDetailPanel');
+    if (!panel || !offer) return;
+    panel.innerHTML = `<div class="offer-detail-head"><span class="offer-badge">${esc(offer.company)}</span><h2>${esc(offer.title)}</h2><p>${esc(offer.type)} · ${esc(offer.location)}</p></div><div class="offer-detail-facts"><div><small>COMPENSATION</small><strong>${esc(offer.compensation)}</strong></div><div><small>APPLICATION DEADLINE</small><strong>${offer.deadline ? esc(offer.deadline) : 'Open until filled'}</strong></div></div><div class="offer-detail-copy"><span class="section-index">ROLE DETAILS</span><p>${esc(offer.details)}</p>${offer.skills ? `<div class="offer-detail-skills"><strong>Skills sought</strong><div class="offer-meta"><span>${esc(offer.skills)}</span></div></div>` : ''}</div><button type="button" class="save-btn offer-apply" data-apply-offer="${esc(offer.id)}">Express interest</button>`;
+    panel.querySelector('[data-apply-offer]').addEventListener('click', () => toast('Interest recorded. The company can now review your profile'));
+  }
+
+  function renderOffersPage() {
+    const list = document.getElementById('offersPageList');
+    if (!list || currentUser?.role !== 'student') return;
+    const now = new Date().toISOString().slice(0, 10);
+    const query = document.getElementById('offersSearch')?.value.trim().toLowerCase() || '';
+    const type = document.getElementById('offersTypeFilter')?.value || '';
+    const location = document.getElementById('offersLocationFilter')?.value || '';
+    const offers = getOffers().filter((offer) => {
+      if (offer.active === false || (offer.deadline && offer.deadline < now)) return false;
+      const haystack = [offer.title, offer.company, offer.skills, offer.details, offer.location].join(' ').toLowerCase();
+      return (!query || haystack.includes(query)) && (!type || offer.type === type) && (!location || offer.location === location);
+    });
+    document.getElementById('offersCount').textContent = `${offers.length} offer${offers.length === 1 ? '' : 's'}`;
+    const locationSelect = document.getElementById('offersLocationFilter');
+    const selectedLocation = locationSelect.value;
+    const locations = [...new Set(getOffers().filter((offer) => offer.active !== false).map((offer) => offer.location).filter(Boolean))];
+    locationSelect.innerHTML = `<option value="">All locations</option>${locations.map((item) => `<option value="${esc(item)}">${esc(item)}</option>`).join('')}`;
+    locationSelect.value = locations.includes(selectedLocation) ? selectedLocation : '';
+    list.innerHTML = offers.length ? offers.map((offer, index) => `<button type="button" class="offer-listing ${index === 0 ? 'selected' : ''}" data-page-offer="${esc(offer.id)}"><span class="listing-mark">${esc((offer.company || 'O').slice(0, 1).toUpperCase())}</span><span class="listing-copy"><strong>${esc(offer.title)}</strong><small>${esc(offer.company)} · ${esc(offer.location)}</small><span>${esc(offer.compensation)} · ${esc(offer.type)}</span></span><span class="listing-arrow">›</span></button>`).join('') : '<div class="offer-page-empty"><strong>No offers match your search</strong><p>Try clearing a filter or check back after companies publish new opportunities.</p></div>';
+    list.querySelectorAll('[data-page-offer]').forEach((button) => button.addEventListener('click', () => {
+      list.querySelectorAll('.offer-listing').forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+      renderOfferDetail(getOffers().find((offer) => offer.id === button.dataset.pageOffer));
+    }));
+    if (offers[0]) renderOfferDetail(offers[0]);
+  }
+
+  function returnToLogin() {
+    if (window.lionsAuth?.logout) {
+      window.lionsAuth.logout();
+      return;
+    }
+    localStorage.removeItem('lions-session');
+    sessionStorage.removeItem(SESSION_KEY);
+    activeVaultKey = null; currentUser = null;
+    document.getElementById('authForm').reset();
+    setAuthMode('login');
+    document.getElementById('authScreen').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.lionsSetActiveUser = function (user, key) {
+    activeVaultKey = key || null;
+    currentUser = user;
+    applyRole(user);
+  };
+
+  window.lionsClearActiveUser = function () {
+    activeVaultKey = null;
+    activeResumeMeta = null;
+    activeResumeAnalysis = null;
+    activeProjectAnalyses = {};
+    currentUser = null;
+  };
 
   function buildPublicProfile(profile) {
     const sharing = { phone: false, email: false, channel: false, github: true, photo: true, org: true, graduation: true, availability: true, ...(profile.sharing || {}) };
@@ -578,16 +711,19 @@
     document.getElementById('assessmentNav').classList.toggle('hidden', !isTeacher);
     document.getElementById('talentNav').classList.toggle('hidden', isStudent);
     document.getElementById('studentNav').classList.toggle('hidden', !isStudent);
+    document.getElementById('offersNav').classList.toggle('hidden', !isStudent);
     document.getElementById('adminNav').classList.toggle('hidden', !isAdmin);
     document.getElementById('mobileOverview').classList.toggle('hidden', !isTeacher);
     document.getElementById('mobileTalent').classList.toggle('hidden', isStudent);
     document.getElementById('mobileSubmit').classList.toggle('hidden', !isStudent);
+    document.getElementById('mobileOffers').classList.toggle('hidden', !isStudent);
     document.getElementById('mobileAdmin').classList.toggle('hidden', !isAdmin);
     document.getElementById('profileNav').classList.remove('hidden');
     document.getElementById('mobileProfile').classList.remove('hidden');
     populateProfile();
     syncPublishedProfile();
     if (isStudent) {
+      renderRecommendedOffers();
       const missing = projects.filter((project) => !activeProjectAnalyses[project] || activeProjectAnalyses[project].pending);
       if (missing.length) {
         missing.forEach((project) => { activeProjectAnalyses[project] = { pending: true, summary: 'Analyzing public repository...', tags: [] }; });
@@ -625,53 +761,6 @@
     const replacement = old.cloneNode(true);
     old.replaceWith(replacement);
     return replacement;
-  }
-
-  async function handleAuth(event) {
-    event.preventDefault();
-    const email = document.getElementById('authEmail').value.trim().toLowerCase();
-    const password = document.getElementById('authPassword').value;
-    const role = document.querySelector('input[name="authRole"]:checked').value;
-    const hint = document.getElementById('authHint');
-    const id = await sha256(email);
-    const accounts = getAccounts();
-    if (authMode === 'register') {
-      if (accounts.some((account) => account.id === id)) {
-        hint.textContent = 'An account already exists for this email.';
-        return;
-      }
-      if (role === 'admin' && await sha256(document.getElementById('authAdminCode').value) !== ADMIN_CODE_HASH) {
-        hint.textContent = 'The administrator invite code is not valid.';
-        return;
-      }
-      const secured = await createSecureAccount({
-        email, password, role,
-        name: document.getElementById('authName').value,
-        org: document.getElementById('authOrg').value,
-      });
-      accounts.push(secured.account);
-      saveAccounts(accounts);
-      activeVaultKey = secured.key;
-      currentUser = { ...secured.profile, id: secured.account.id, role };
-      applyRole(currentUser);
-      toast('Secure account created');
-      return;
-    }
-    const account = accounts.find((item) => item.id === id && item.role === role);
-    if (!account) {
-      hint.textContent = 'Email, password or selected role does not match.';
-      return;
-    }
-    try {
-      const credentials = await deriveCredentials(password, base64ToBytes(account.salt));
-      if (credentials.verifier !== account.verifier) throw new Error('Invalid password');
-      const profile = await decryptProfile(account, credentials.key);
-      activeVaultKey = credentials.key;
-      currentUser = { ...profile, id: account.id, role: account.role };
-      applyRole(currentUser);
-    } catch (error) {
-      hint.textContent = 'Email, password or selected role does not match.';
-    }
   }
 
   renderResume = function () {
@@ -1000,7 +1089,7 @@
     };
     const avatarStyle = profile.avatar ? `background-image:url('${esc(profile.avatar)}')` : '';
     const information = [['Name', profile.name], profile.org ? ['School / organisation', profile.org] : null, ...Object.entries(profile.contact || {}).filter(([, value]) => value)].filter(Boolean);
-    document.getElementById('modalContent').innerHTML = `<div class="public-profile-head"><span class="modal-avatar ${profile.avatar ? 'avatar-img' : ''}" style="${avatarStyle}">${esc(initials(profile.name))}</span><div><div class="modal-kicker">TEACHER PROFILE</div><div class="modal-name">${esc(profile.name)}</div><div class="modal-role">Teacher</div></div></div><section class="public-information"><span>PERSONAL INFORMATION</span><div class="public-profile-facts">${information.map(([label, value]) => `<div><small>${esc(label)}</small><strong>${esc(value)}</strong></div>`).join('')}</div></section>`;
+    document.getElementById('modalContent').innerHTML = `<div class="public-profile-head"><span class="modal-avatar ${profile.avatar ? 'avatar-img' : ''}" style="${avatarStyle}">${esc(initials(profile.name))}</span><div><div class="modal-kicker">REVIEWER PROFILE</div><div class="modal-name">${esc(profile.name)}</div><div class="modal-role">Reviewer</div></div></div><section class="public-information"><span>PERSONAL INFORMATION</span><div class="public-profile-facts">${information.map(([label, value]) => `<div><small>${esc(label)}</small><strong>${esc(value)}</strong></div>`).join('')}</div></section>`;
     document.getElementById('modal').classList.add('open');
   }
 
@@ -1013,7 +1102,7 @@
     container.innerHTML = requests.length ? requests.map((request) => {
       const profile = request.teacherProfile || { name: request.teacherName, avatar: '', org: request.teacherOrg || '' };
       const avatarStyle = profile.avatar ? `background-image:url('${esc(profile.avatar)}')` : '';
-      return `<article class="request-row"><div><button class="request-profile" data-teacher-profile="${esc(request.id)}" title="View ${esc(profile.name)} profile"><span class="request-avatar ${profile.avatar ? 'avatar-img' : ''}" style="${avatarStyle}">${esc(initials(profile.name))}</span><span><strong>${esc(profile.name)}</strong><small>${esc(profile.org || 'Teacher workspace')}</small></span></button><p>${request.status === 'approved' ? 'Application sent · this teacher can view your resume' : request.status === 'declined' ? 'Request declined' : 'Invited you to apply and share your original resume'}</p></div><div class="request-actions">${request.status === 'pending' ? `<button data-request-decision="approved:${esc(request.id)}">Apply & share resume</button><button class="decline" data-request-decision="declined:${esc(request.id)}">Decline</button>` : `<span class="request-state ${esc(request.status)}">${request.status}</span>`}</div></article>`;
+      return `<article class="request-row"><div><button class="request-profile" data-teacher-profile="${esc(request.id)}" title="View ${esc(profile.name)} profile"><span class="request-avatar ${profile.avatar ? 'avatar-img' : ''}" style="${avatarStyle}">${esc(initials(profile.name))}</span><span><strong>${esc(profile.name)}</strong><small>${esc(profile.org || 'Reviewer workspace')}</small></span></button><p>${request.status === 'approved' ? 'Application sent · this reviewer can view your resume' : request.status === 'declined' ? 'Request declined' : 'Invited you to apply and share your original resume'}</p></div><div class="request-actions">${request.status === 'pending' ? `<button data-request-decision="approved:${esc(request.id)}">Apply & share resume</button><button class="decline" data-request-decision="declined:${esc(request.id)}">Decline</button>` : `<span class="request-state ${esc(request.status)}">${request.status}</span>`}</div></article>`;
     }).join('') : '<div class="request-empty">No application requests yet.</div>';
     document.querySelectorAll('[data-teacher-profile]').forEach((button) => button.addEventListener('click', () => {
       const request = requests.find((item) => item.id === button.dataset.teacherProfile);
@@ -1028,7 +1117,7 @@
       request.respondedAt = new Date().toISOString();
       saveApplicationRequests(next);
       renderStudentRequests();
-      toast(status === 'approved' ? 'Application sent. Resume access granted to this teacher.' : 'Application request declined');
+      toast(status === 'approved' ? 'Application sent. Resume access granted to this reviewer.' : 'Application request declined');
     }));
   }
 
@@ -1152,19 +1241,13 @@
     renderRubric();
     updateScores();
 
-    const oldForm = document.getElementById('authForm');
-    const authForm = oldForm.cloneNode(true);
-    oldForm.replaceWith(authForm);
-    authForm.addEventListener('submit', handleAuth);
     document.querySelectorAll('input[name="authRole"]').forEach((radio) => radio.addEventListener('change', updateAdminCodeVisibility));
 
-    const logout = replaceWithClone('logoutBtn');
-    logout.addEventListener('click', () => {
-      sessionStorage.removeItem(SESSION_KEY);
-      activeVaultKey = null; currentUser = null; activeResumeMeta = null; activeResumeAnalysis = null; activeProjectAnalyses = {};
-      document.getElementById('authForm').reset(); setAuthMode('login');
-      document.getElementById('authScreen').classList.remove('hidden');
-    });
+    const logout = document.getElementById('logoutBtn');
+    logout.addEventListener('click', () => window.lionsAuth?.logout());
+
+    document.getElementById('workspaceBack').addEventListener('click', returnToLogin);
+    document.getElementById('sendOffer').addEventListener('click', offerForm);
 
     const submit = replaceWithClone('submitEvidence');
     submit.addEventListener('click', submitStudentProfile);
@@ -1233,6 +1316,8 @@
     });
 
     document.getElementById('adminNav').addEventListener('click', () => showWorkspace('admin'));
+    document.getElementById('offersNav').addEventListener('click', () => showWorkspace('offers'));
+    document.getElementById('mobileOffers').addEventListener('click', () => showWorkspace('offers'));
     document.getElementById('mobileAdmin').addEventListener('click', () => showWorkspace('admin'));
     document.getElementById('profileNav').addEventListener('click', () => showWorkspace('profile'));
     document.getElementById('mobileProfile').addEventListener('click', () => showWorkspace('profile'));
@@ -1248,9 +1333,19 @@
       refreshFilterSelects(); renderAdmin(); toast('Filter option added to the talent market');
     });
     ['schoolFilter', 'yearFilter', 'availabilityFilter'].forEach((id) => document.getElementById(id).addEventListener('change', renderTalentPool));
+    document.getElementById('offersSearch').addEventListener('input', renderOffersPage);
+    document.getElementById('offersTypeFilter').addEventListener('change', renderOffersPage);
+    document.getElementById('offersLocationFilter').addEventListener('change', renderOffersPage);
+    document.getElementById('clearOfferFilters').addEventListener('click', () => {
+      document.getElementById('offersSearch').value = '';
+      document.getElementById('offersTypeFilter').value = '';
+      document.getElementById('offersLocationFilter').value = '';
+      renderOffersPage();
+    });
     window.addEventListener('storage', (event) => {
       if (event.key === REQUEST_KEY && currentUser?.role === 'student') renderStudentRequests();
       if (event.key === 'lions-submissions' && currentUser && currentUser.role !== 'student') renderTalentPool();
+      if (event.key === OFFER_KEY && currentUser?.role === 'student') { renderRecommendedOffers(); renderOffersPage(); }
     });
     document.getElementById('clearFilters').addEventListener('click', () => {
       ['schoolFilter', 'yearFilter', 'availabilityFilter'].forEach((id) => { document.getElementById(id).value = ''; });
@@ -1258,13 +1353,21 @@
     });
 
     candidates.forEach((candidate) => Object.assign(candidate, decorateCandidate(candidate)));
-    sessionStorage.removeItem(SESSION_KEY);
-    currentUser = null;
-    document.getElementById('authScreen').classList.remove('hidden');
+    if (window.__lionsBootstrapAuth) {
+      const bootstrapAuth = window.__lionsBootstrapAuth;
+      delete window.__lionsBootstrapAuth;
+      activeVaultKey = bootstrapAuth.key;
+      currentUser = bootstrapAuth.user;
+      applyRole(currentUser);
+    } else {
+      currentUser = null;
+      document.getElementById('authScreen')?.classList.remove('hidden');
+    }
   }
 
-  initialize().catch((error) => {
+  window.lionsProfileReady = initialize().catch((error) => {
     console.error('LIONS secure profile initialization failed', error);
-    document.getElementById('authHint').textContent = 'The secure profile service could not start in this browser.';
+    const hint = document.getElementById('authHint');
+    if (hint) hint.textContent = 'The secure profile service could not start in this browser.';
   });
 }());

@@ -51,6 +51,8 @@ class LionsHandler(SimpleHTTPRequestHandler):
         if path in {"/deepseek-key.txt", "/.gitignore", "/serve-lions.py"}:
             self.send_json(404, {"error": "Not found"})
             return
+        if path in {"/login", "/dashboard", "/shortlists", "/talent", "/evaluation", "/evidence", "/profile"}:
+            self.path = "/index.html"
         super().do_GET()
 
     def do_POST(self):
