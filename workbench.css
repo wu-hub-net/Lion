@@ -1,0 +1,493 @@
+/* ============================================================
+   workbench.css — LIONS 上传简历 + 面试日程 workbench 复刻样式
+   设计令牌对齐 workbench：indigo #6366f1 / #4f46e5，玻璃拟态，
+   Outfit（展示）+ DM Sans（正文），渐变按钮，状态徽章。
+   ============================================================ */
+
+:root {
+  --wb-primary: #6366f1;
+  --wb-primary-600: #4f46e5;
+  --wb-primary-50: #eef2ff;
+  --wb-primary-100: #e0e7ff;
+  --wb-primary-200: #c7d2fe;
+  --wb-primary-300: #a5b4fc;
+  --wb-ink: #17223d;
+  --wb-muted: #74809a;
+  --wb-faint: #9aa3bb;
+  --wb-border: #e2e8f5;
+  --wb-border-soft: rgba(148, 163, 184, 0.35);
+  --wb-bg: #f4f6ff;
+  --wb-white: #ffffff;
+  --wb-emerald: #10b981;
+  --wb-emerald-bg: #ecfdf5;
+  --wb-amber: #f59e0b;
+  --wb-amber-bg: #fffbeb;
+  --wb-rose: #f43f5e;
+  --wb-rose-bg: #fff1f2;
+  --wb-slate: #64748b;
+  --wb-slate-bg: #f1f5f9;
+}
+
+#resumeView, #interviewsView {
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+#resumeView h1, #interviewsView h1,
+#resumeView .wb-schedule-title h3, #interviewsView .wb-schedule-title h3,
+.wb-schedule-title h3 {
+  font-family: "Outfit", "Space Grotesk", sans-serif;
+}
+
+/* ---------- 通用按钮 ---------- */
+.wb-btn {
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  border-radius: 11px;
+  padding: 11px 18px;
+  font-size: 13px;
+  line-height: 1;
+  transition: transform .12s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+}
+.wb-btn:active { transform: translateY(1px); }
+.wb-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.wb-btn-primary {
+  background: var(--wb-primary);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, .28);
+}
+.wb-btn-primary:hover { background: var(--wb-primary-600); }
+
+.wb-btn-gradient {
+  background: linear-gradient(135deg, #818cf8 0%, var(--wb-primary) 48%, var(--wb-primary-600) 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, .32);
+}
+.wb-btn-gradient:hover { box-shadow: 0 14px 30px rgba(99, 102, 241, .4); transform: translateY(-1px); }
+
+.wb-btn-block { display: block; width: 100%; }
+.wb-btn-ghost {
+  background: var(--wb-white);
+  color: var(--wb-ink);
+  border: 1px solid var(--wb-border);
+}
+.wb-btn-ghost:hover { border-color: var(--wb-primary-300); color: var(--wb-primary-600); }
+
+/* ---------- 面试日程头部（ScheduleHeader 式卡片） ---------- */
+.wb-schedule-panel { overflow: hidden; margin-top: 20px; }
+
+.wb-schedule-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--wb-border);
+  background: rgba(255, 255, 255, .72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.wb-schedule-title { flex: 1 1 220px; min-width: 0; }
+.wb-schedule-title .section-index { margin-bottom: 4px; }
+.wb-schedule-title h3 { margin: 0; font-size: 20px; letter-spacing: -.02em; color: var(--wb-ink); }
+
+.wb-schedule-nav { display: flex; align-items: center; gap: 8px; }
+.wb-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wb-ink);
+  background: var(--wb-white);
+  border: 1px solid var(--wb-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.wb-icon-btn:hover { border-color: var(--wb-primary-300); color: var(--wb-primary-600); }
+.wb-today-btn { color: var(--wb-primary-600); font-size: 12px; }
+
+.wb-view-switcher {
+  display: inline-flex;
+  gap: 3px;
+  padding: 4px;
+  background: var(--wb-primary-50);
+  border-radius: 12px;
+}
+.wb-view-tab {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wb-muted);
+  border: 0;
+  background: transparent;
+  border-radius: 9px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background .15s, color .15s, box-shadow .15s;
+}
+.wb-view-tab:hover { color: var(--wb-primary-600); }
+.wb-view-tab.active {
+  background: var(--wb-white);
+  color: var(--wb-primary-600);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, .18);
+}
+
+.wb-schedule-body { padding: 16px 18px 20px; }
+
+/* ---------- 日历（月 / 周 / 日） ---------- */
+.wb-calendar { min-height: 420px; }
+
+.wb-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 1px;
+}
+.wb-cal-weekdays span {
+  padding: 10px;
+  background: var(--wb-primary-50);
+  color: var(--wb-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.wb-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(96px, 1fr);
+  gap: 1px;
+  background: var(--wb-border);
+}
+.wb-month-cell {
+  background: var(--wb-white);
+  padding: 8px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.wb-month-cell.is-outside { background: #fafbff; }
+.wb-month-cell.is-today .wb-day-num {
+  background: var(--wb-primary);
+  color: #fff;
+}
+.wb-day-num {
+  align-self: flex-end;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wb-ink);
+}
+
+.wb-event {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .12s ease, box-shadow .15s ease;
+}
+.wb-event:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(23, 34, 61, .12); }
+.wb-event strong, .wb-event small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-event strong { font-size: 11px; font-weight: 600; }
+.wb-event small { font-size: 10px; opacity: .72; margin-top: 2px; }
+
+/* 周视图 / 日视图（时间轴网格） */
+.wb-week, .wb-day { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto 540px; }
+.wb-week-corner { grid-area: 1 / 1; border-bottom: 1px solid var(--wb-border); }
+.wb-time-gutter {
+  grid-area: 2 / 1;
+  display: grid;
+  grid-template-rows: repeat(15, 1fr);
+  padding-right: 10px;
+  min-height: 540px;
+}
+.wb-time-gutter span { font-size: 10px; color: var(--wb-faint); text-align: right; transform: translateY(-5px); }
+.wb-week-head { grid-area: 1 / 2; display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--wb-border); }
+.wb-week-head .wb-day-col-head, .wb-day-head { padding: 9px 6px; text-align: center; border-left: 1px solid var(--wb-border-soft); }
+.wb-week-head strong, .wb-day-head strong { display: block; font-size: 11px; color: var(--wb-ink); }
+.wb-week-head small, .wb-day-head small { display: block; font-size: 10px; color: var(--wb-faint); margin-top: 2px; }
+.wb-week-head .is-today strong, .wb-week-head .is-today small, .wb-day-head.is-today strong, .wb-day-head.is-today small { color: var(--wb-primary-600); }
+.wb-week-body, .wb-day-body {
+  grid-area: 2 / 2;
+  position: relative;
+  min-height: 540px;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(100% / 15 - 1px), var(--wb-border-soft) calc(100% / 15 - 1px), var(--wb-border-soft) calc(100% / 15));
+}
+.wb-week-body { display: grid; grid-template-columns: repeat(7, 1fr); }
+.wb-day-body { border-left: 1px solid var(--wb-border-soft); }
+.wb-day-col { border-left: 1px solid var(--wb-border-soft); position: relative; }
+.wb-day-col:first-child { border-left: 0; }
+.wb-event-bar {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border: 0;
+  border-radius: 7px;
+  padding: 6px 8px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 4px 10px rgba(23, 34, 61, .1);
+}
+.wb-event-bar strong, .wb-event-bar small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-event-bar strong { font-size: 10px; font-weight: 600; }
+.wb-event-bar small { font-size: 9px; opacity: .75; margin-top: 2px; }
+
+/* 状态配色（事件 / 徽章共用） */
+.wb-status-pending { background: var(--wb-primary-50); color: var(--wb-primary-600); }
+.wb-status-completed { background: var(--wb-emerald-bg); color: #059669; }
+.wb-status-cancelled { background: var(--wb-slate-bg); color: var(--wb-slate); }
+.wb-status-rescheduled { background: var(--wb-amber-bg); color: #b45309; }
+.wb-status-expired { background: var(--wb-rose-bg); color: #be123c; }
+
+.wb-event-bar.wb-status-pending { background: var(--wb-primary-100); border-left: 3px solid var(--wb-primary); }
+.wb-event-bar.wb-status-completed { background: var(--wb-emerald-bg); border-left: 3px solid var(--wb-emerald); }
+.wb-event-bar.wb-status-cancelled { background: var(--wb-slate-bg); border-left: 3px solid var(--wb-slate); opacity: .7; }
+.wb-event-bar.wb-status-rescheduled { background: var(--wb-amber-bg); border-left: 3px solid var(--wb-amber); }
+.wb-event-bar.wb-status-expired { background: var(--wb-rose-bg); border-left: 3px solid var(--wb-rose); }
+
+.wb-event.wb-status-pending { background: var(--wb-primary-50); border-left: 3px solid var(--wb-primary); color: var(--wb-primary-600); }
+.wb-event.wb-status-completed { background: var(--wb-emerald-bg); border-left: 3px solid var(--wb-emerald); color: #059669; }
+.wb-event.wb-status-cancelled { background: var(--wb-slate-bg); border-left: 3px solid var(--wb-slate); color: var(--wb-slate); text-decoration: line-through; }
+.wb-event.wb-status-rescheduled { background: var(--wb-amber-bg); border-left: 3px solid var(--wb-amber); color: #b45309; }
+.wb-event.wb-status-expired { background: var(--wb-rose-bg); border-left: 3px solid var(--wb-rose); color: #be123c; }
+
+/* ---------- 状态徽章 ---------- */
+.wb-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.wb-status-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ---------- 面试列表卡片（InterviewListItem 式） ---------- */
+.wb-interview-list { padding: 6px 0 0; display: grid; gap: 12px; }
+.wb-interview-card {
+  background: var(--wb-white);
+  border: 1px solid var(--wb-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 22px rgba(92, 108, 155, .07);
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.wb-interview-card:hover { box-shadow: 0 14px 28px rgba(92, 108, 155, .12); border-color: var(--wb-primary-200); }
+.wb-interview-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.wb-interview-card-head h4 { margin: 0; font-size: 15px; color: var(--wb-ink); letter-spacing: -.01em; }
+.wb-interview-card-head p { margin: 3px 0 0; font-size: 12px; color: var(--wb-muted); }
+.wb-interview-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--wb-border-soft); }
+.wb-interview-meta span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--wb-muted); }
+.wb-interview-meta span b { color: var(--wb-ink); font-weight: 600; }
+.wb-interview-notes { margin: 12px 0 0; font-size: 12px; color: var(--wb-muted); line-height: 1.55; }
+.wb-interview-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.wb-interview-actions .wb-btn { padding: 8px 13px; font-size: 12px; }
+
+/* ---------- 上传简历拖拽卡片（FileUploadCard 式） ---------- */
+.wb-dropzone {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  border-radius: 14px;
+  border: 2px dashed var(--wb-primary-300);
+  background: linear-gradient(180deg, #ffffff 0%, var(--wb-primary-50) 100%);
+  padding: 6px;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.wb-dropzone:hover, .wb-dropzone.is-dragover {
+  border-color: var(--wb-primary);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, .16);
+}
+.wb-dropzone.is-dragover { background: linear-gradient(180deg, #ffffff 0%, var(--wb-primary-100) 100%); }
+
+.wb-dropzone input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.wb-dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 30px 20px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .72);
+}
+.wb-dropzone-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--wb-primary-100);
+  color: var(--wb-primary-600);
+  font-size: 24px;
+  line-height: 1;
+}
+.wb-dropzone-empty strong { font-size: 15px; color: var(--wb-ink); }
+.wb-dropzone-empty small { font-size: 12px; color: var(--wb-muted); }
+.wb-dropzone-empty em { font-style: normal; font-size: 11px; color: var(--wb-faint); margin: 6px 0 14px; }
+
+.wb-dropzone-selected { display: none; }
+
+.wb-dropzone.has-file .wb-dropzone-empty { display: none; }
+.wb-dropzone.has-file .wb-dropzone-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 11px;
+  background: var(--wb-white);
+}
+.wb-file-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--wb-primary-50);
+  color: var(--wb-primary-600);
+  font-size: 18px;
+}
+.wb-file-meta { flex: 1 1 auto; min-width: 0; }
+.wb-file-meta strong { display: block; font-size: 13px; color: var(--wb-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-file-meta small { display: block; font-size: 11px; color: var(--wb-muted); margin-top: 3px; }
+.wb-file-remove {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--wb-slate-bg);
+  color: var(--wb-slate);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.wb-file-remove:hover { background: var(--wb-rose-bg); color: var(--wb-rose); }
+
+/* ---------- 上传列表卡片 ---------- */
+.wb-resume-list { display: grid; gap: 10px; padding: 4px 23px 20px; }
+.wb-resume-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 15px;
+  background: var(--wb-white);
+  border: 1px solid var(--wb-border);
+  border-radius: 12px;
+}
+.wb-resume-row strong { display: block; font-size: 12px; color: var(--wb-ink); }
+.wb-resume-row small { display: block; font-size: 11px; color: var(--wb-muted); margin-top: 3px; }
+.wb-resume-row .wb-resume-actions { display: flex; gap: 7px; align-items: center; flex: 0 0 auto; }
+
+/* ---------- 三步面试弹窗 ---------- */
+#modal .candidate-modal:has(.wb-interview-modal) {
+  width: min(680px, 100%);
+  border-radius: 16px;
+}
+.wb-interview-modal .wb-modal-steps { display: flex; gap: 6px; margin-bottom: 18px; }
+.wb-modal-step {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wb-faint);
+  padding: 9px 6px;
+  border-radius: 9px;
+  background: var(--wb-slate-bg);
+}
+.wb-modal-step.active { background: var(--wb-primary-50); color: var(--wb-primary-600); }
+.wb-step-count { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 5px; border-radius: 50%; background: currentColor; color: #fff; font-size: 10px; }
+
+.wb-form-field { display: grid; gap: 6px; margin-bottom: 12px; }
+.wb-form-field label { font-size: 12px; font-weight: 600; color: var(--wb-ink); }
+.wb-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wb-form-field input, .wb-form-field select, .wb-form-field textarea {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--wb-border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--wb-ink);
+  background: var(--wb-white);
+  transition: border-color .15s, box-shadow .15s;
+}
+.wb-form-field input:focus, .wb-form-field select:focus, .wb-form-field textarea:focus {
+  outline: none;
+  border-color: var(--wb-primary);
+  box-shadow: 0 0 0 3px var(--wb-primary-50);
+}
+.wb-form-field textarea { min-height: 96px; resize: vertical; }
+.wb-form-hint { font-size: 11px; color: var(--wb-faint); line-height: 1.5; margin: 0 0 12px; }
+.wb-parse-preview {
+  margin: 14px 0;
+  padding: 14px 16px;
+  background: var(--wb-primary-50);
+  border: 1px solid var(--wb-primary-100);
+  border-radius: 12px;
+  display: grid;
+  gap: 6px;
+}
+.wb-parse-preview div { display: flex; gap: 8px; font-size: 12px; }
+.wb-parse-preview b { color: var(--wb-ink); min-width: 80px; font-weight: 600; }
+.wb-parse-preview span { color: var(--wb-muted); }
+.wb-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .wb-form-row { grid-template-columns: 1fr; }
+  .wb-schedule-header { gap: 10px; }
+}
+@media (max-width: 760px) {
+  .wb-schedule-header { align-items: stretch; }
+  .wb-schedule-title { flex-basis: 100%; }
+  .wb-schedule-nav { order: 2; }
+  .wb-view-switcher { order: 3; flex: 1; justify-content: center; }
+  .wb-view-tab { flex: 1; }
+  #addInterview.wb-btn { order: 4; flex: 1; }
+  .wb-cal-weekdays span { padding: 8px 4px; font-size: 10px; }
+  .wb-month-grid { grid-auto-rows: minmax(76px, 1fr); }
+  .wb-month-cell { padding: 5px; }
+  .wb-interview-card-head { flex-direction: column; }
+  .wb-interview-actions .wb-btn { flex: 1; }
+  .wb-modal-actions { flex-direction: column; }
+  .wb-modal-actions .wb-btn { width: 100%; }
+}

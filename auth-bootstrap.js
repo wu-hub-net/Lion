@@ -118,10 +118,11 @@
     if (scriptsLoaded) return;
     if (!scriptsLoading) {
       scriptsLoading = (async () => {
-        await loadScript('app.js?v=20260916-1');
-        await loadScript('mobile.js?v=20260916-1');
+        await loadScript('api-client.js?v=20260917-5');
+        await loadScript('app.js?v=20260916-3');
+        await loadScript('mobile.js?v=20260916-3');
         await loadScript('node_modules/mammoth/mammoth.browser.min.js');
-        await loadScript('profile-admin.js?v=20260916-1');
+        await loadScript('profile-admin.js?v=20260917-11');
         scriptsLoaded = true;
       })();
     }

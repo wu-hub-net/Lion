@@ -48,7 +48,7 @@ class LionsHandler(SimpleHTTPRequestHandler):
         if path == "/api/deepseek/status":
             self.send_json(200, {"configured": bool(read_api_key())})
             return
-        if path in {"/deepseek-key.txt", "/.gitignore", "/serve-lions.py"}:
+        if path in {"/deepseek-key.txt", "/.env", "/.gitignore", "/serve-lions.py"} or path.startswith("/backend/"):
             self.send_json(404, {"error": "Not found"})
             return
         if path in {"/login", "/dashboard", "/shortlists", "/talent", "/evaluation", "/evidence", "/profile"}:

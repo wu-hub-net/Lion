@@ -12,3 +12,8 @@ __pycache__/
 Thumbs.db
 talent-check.png
 talent-mobile-check.png
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+backend/uploads/
